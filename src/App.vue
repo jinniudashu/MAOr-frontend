@@ -17,16 +17,15 @@ import { ref, computed, onMounted } from 'vue';
 import VueCal from 'vue-cal'
 import 'vue-cal/dist/vuecal.css'
 
-const url = 'http://127.0.0.1:8000/gemba/tasks_list/'
+// 服务器API地址
+const url = 'https://maor-production.up.railway.app/gemba/tasks_list/'
 
 const events = ref([])
 
 const fetchEvents = async ({ view, startDate, endDate, week }) => {
-    console.log('Fetching events', { view, startDate, endDate, week })
     
     // Do an ajax call here with the given startDate & endDate.
     // Your API should return an array of events for this date range.      
-    // The events should be in the following format:
     // {
     //   start: '2016-12-08 10:30', // Start date/time
     //   end: '2016-12-08 12:30',   // End date/time
@@ -48,61 +47,36 @@ const fetchEvents = async ({ view, startDate, endDate, week }) => {
         const data = await response.json();
 
         // 更新events的响应式引用
-        events.value = data.map(event => ({
-          // 根据你的API返回结构映射到你的事件数据格式
-          // 例如:
-          // start: event.start,
-          // end: event.end,
-          // title: event.title,
-          // content: event.content,
-          // class: event.class
-        }));
+        events.value = data.map(event => {
+            // 解析并格式化开始时间
+            const startDateTime = new Date(event.schedule_time);
+            const startFormatted = `${startDateTime.getFullYear()}-${(startDateTime.getMonth() + 1).toString().padStart(2, '0')}-${startDateTime.getDate().toString().padStart(2, '0')} ${startDateTime.getHours().toString().padStart(2, '0')}:${startDateTime.getMinutes().toString().padStart(2, '0')}`;
+
+            // 计算并格式化结束时间（假设事件持续1小时）
+            const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);
+            const endFormatted = `${endDateTime.getFullYear()}-${(endDateTime.getMonth() + 1).toString().padStart(2, '0')}-${endDateTime.getDate().toString().padStart(2, '0')} ${endDateTime.getHours().toString().padStart(2, '0')}:${endDateTime.getMinutes().toString().padStart(2, '0')}`;
+
+            const title = event.name;
+            const content = `客户编号: ${event.customer}, 任务编号: ${event.task}, 状态: ${event.status}`;
+
+            // 根据状态设置类名
+            const class_name = event.status === 'Pending' ? 'pending-class' : 'other-class';
+
+          return {
+            start: startFormatted,
+            end: endFormatted,
+            title: title,
+            content: content,
+            class: class_name
+          }
+        });
+
+        console.log("events:", events.value)
+
     } catch (error) {
         console.error('Error fetching events:', error);
     }
 
-    // // Here we pretend an API call with a Promise and the setTimeout simulates the payload time.
-    // new Promise((resolve, reject) => { setTimeout(resolve, 400) })
-    //   .then(() => {
-    //     console.log('Events fetched, view:', view)
-    //     events.value = [
-    //       {
-    //         start: '2024-01-10 10:00',
-    //         end: '2024-01-10 11:00',
-    //         title: '治疗',
-    //         content: '<i class="icon material-icons">shopping_cart</i>',
-    //         class: 'leisure'
-    //       },
-    //       {
-    //         start: '2024-01-10 11:00',
-    //         end: '2024-01-10 11:05',
-    //         title: '预约',
-    //         content: '<i class="icon material-icons">golf_course</i>',
-    //         class: 'sport'
-    //       },
-    //       {
-    //         start: '2024-01-11 11:00',
-    //         end: '2024-01-11 11:10',
-    //         title: '随访',
-    //         content: '<i class="icon material-icons">golf_course</i>',
-    //         class: 'sport'
-    //       },
-    //       {
-    //         start: '2024-01-11 13:00',
-    //         end: '2024-01-11 14:00',
-    //         title: '治疗',
-    //         content: '<i class="icon material-icons">shopping_cart</i>',
-    //         class: 'leisure'
-    //       },
-    //       {
-    //         start: '2024-01-12 15:00',
-    //         end: '2024-01-12 15:10',
-    //         title: '随访',
-    //         content: '<i class="icon material-icons">cake</i>',
-    //         class: 'sport'
-    //       }
-    //     ]
-    //   });
   };
 
 const selectedDate = ref(new Date());
