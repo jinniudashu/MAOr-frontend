@@ -18,7 +18,9 @@ import VueCal from 'vue-cal'
 import 'vue-cal/dist/vuecal.css'
 
 // 服务器API地址
-const url = 'https://maor-production.up.railway.app/gemba/tasks_list/'
+const baseURL = import.meta.env.MAOR_API_URL;
+// const url = 'https://maor-production.up.railway.app/gemba/tasks_list/'
+const url = `${baseURL}/gemba/tasks_list/`;
 
 const events = ref([])
 
