@@ -30,9 +30,9 @@ const fetchEvents = async ({ view, startDate, endDate, week }) => {
     // {
     //   start: '2016-12-08 10:30', // Start date/time
     //   end: '2016-12-08 12:30',   // End date/time
-    //   title: 'My nice event',    // Event title
+    //   title: 'My nice event',    // Task title
     //   content: '<i class="icon material-icons">shopping_cart</i>', // Event content (HTML allowed)
-    //   class: 'leisure'           // Event class (string, optional)
+    //   class: 'leisure'           // Task class (string, optional)
     // }
     
     try {
